@@ -8,11 +8,14 @@ object Main extends App {
 
   println(s"Simple computation: ${Repository.runSimpleComputation}")
 
-  val (master, detail) = Repository.insertMasterAndDetail(
-    Master(description = "Master"),
-    Detail(description = "Detail")
-  )
-
-  println(master)
-  println(detail)
+  (1 to 100) map { _ =>
+    Repository.insertMasterAndDetail(
+      Master(description = "Master"),
+      Detail(description = "Detail")
+    )
+  }
+  println("*"*88)
+  val joinQueryResult = Repository.findAllMasterDetail()
+  joinQueryResult.foreach(println)
+  println("*"*88)
 }

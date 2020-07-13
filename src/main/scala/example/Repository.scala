@@ -56,8 +56,8 @@ class Repository(xa: Transactor[IO]) {
   def insertMasterAndDetail(master: Master, detail: Detail): (Master, Detail) = {
     val transaction = for {
       masterId <- masterId
-      master <- insertMaster(master.copy(id = Some(masterId)))
-      detail <- insertDetail(detail.copy(masterId = Some(masterId)))
+      master <- insertMaster(master.copy(id = Some(masterId), description = s"${master.description}-$masterId"))
+      detail <- insertDetail(detail.copy(masterId = Some(masterId), description = s"${detail.description}-$masterId"))
     } yield (master, detail)
 
     transaction.transact(xa).unsafeRunSync()
@@ -88,5 +88,13 @@ class Repository(xa: Transactor[IO]) {
       .unsafeRunSync
       .foreach(println)
   }
+
+  def findAllMasterDetail(): Seq[(Master, Detail)] =
+    sql"select m.*, d.* from master m left outer join detail d on m.id = d.master_id"
+      .query[(Master, Detail)]
+      .stream
+      .compile.toList
+      .transact(xa)
+      .unsafeRunSync
 
 }
