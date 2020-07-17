@@ -14,6 +14,7 @@ import io.circe._
 import io.circe.jawn._
 import io.circe.syntax._
 import org.postgresql.util.PGobject
+import Pagination._
 
 object RepositorySingleton {
 
@@ -31,7 +32,7 @@ object RepositorySingleton {
 }
 
 class Repository(xa: Transactor[IO]) {
-
+  import RepositorySQL._
   import io.circe.generic.semiauto.deriveDecoder
   import io.circe.generic.semiauto.deriveEncoder
 
@@ -89,12 +90,26 @@ class Repository(xa: Transactor[IO]) {
       .foreach(println)
   }
 
-  def findAllMasterDetail(): Seq[(Master, Detail)] =
-    sql"select m.*, d.* from master m left outer join detail d on m.id = d.master_id"
-      .query[(Master, Detail)]
-      .stream
-      .compile.toList
+  def findAllMasterDetail(page: Int = 0, pageSize: Int = 10): Page[(Master, Detail)] =
+    paginated[(Master, Detail)](page, pageSize)(selectAllMasterJoinDetail, countAllMasterJoinDetail)
+
+
+  def paginated[A: Read](page: Int, pageSize: Int)(q: Query0[A], count: Query0[Long]): Page[A] = {
+    val pagedResult = paginate(pageSize, page * pageSize)(q)
+      .to[Seq]
       .transact(xa)
       .unsafeRunSync
+    val countResult = count.unique.transact(xa).unsafeRunSync
+    Page[A](page, pageSize, countResult, pagedResult)
+  }
+}
+
+private object RepositorySQL {
+  def selectAllMasterJoinDetail: Query0[(Master, Detail)] =
+    fr"select m.*, d.* from master m left outer join detail d on m.id = d.master_id".query
+
+  def countAllMasterJoinDetail: Query0[Long] =
+    fr"select count(1) from master m left outer join detail d on m.id = d.master_id".query
+
 
 }

@@ -16,6 +16,6 @@ object Main extends App {
   }
   println("*"*88)
   val joinQueryResult = Repository.findAllMasterDetail()
-  joinQueryResult.foreach(println)
+  joinQueryResult.results.foreach(println)
   println("*"*88)
 }
