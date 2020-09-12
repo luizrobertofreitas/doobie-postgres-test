@@ -9,6 +9,7 @@ scalacOptions += "-Ypartial-unification"
 
 lazy val doobieVersion = "0.8.8"
 lazy val circeVersion = "0.12.1"
+lazy val catsVersion = "2.0.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -21,7 +22,9 @@ lazy val root = (project in file("."))
       "io.circe"     %% "circe-core"            % circeVersion,
       "io.circe"     %% "circe-generic"         % circeVersion,
       "io.circe"     %% "circe-generic-extras"  % circeVersion,
-      "io.circe"     %% "circe-parser"          % circeVersion
+      "io.circe"     %% "circe-parser"          % circeVersion,
+      "org.typelevel" %% "cats-core"            % catsVersion,
+      "org.typelevel" %% "cats-effect"          % catsVersion
     )
   )
 
