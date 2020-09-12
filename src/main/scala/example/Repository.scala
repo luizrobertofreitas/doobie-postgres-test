@@ -22,9 +22,9 @@ object RepositorySingleton {
 
   val xa: Aux[IO, Unit] = Transactor.fromDriverManager[IO](
     "org.postgresql.Driver",
-    "jdbc:postgresql://localhost:15432/client_billing",
-    "gympass",
-    "1234qwer",
+    "jdbc:postgresql://localhost:15432/test_test",
+    "user",
+    "pass",
     Blocker.liftExecutionContext(ExecutionContexts.synchronous)
   )
 
